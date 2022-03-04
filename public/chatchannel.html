@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="icon" type="image/x-icon" href="img/logo.ico">
+    <title>Chat Channel</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+
+<body>
+    <div class="center">
+        <h1><a href="" title="">Chat Channel</a></h1>
+        <form action="" method="post" accept-charset="utf-8">
+            <div class="choose-cr-jo">
+                <input type="button" value="CreatChannel" id="create">
+                <input type="button" value="JoinChannel" id="join">
+            </div>
+            <div style="clear: both;"></div>
+            <div class="form-control" id="options">
+                <label for="room">Channel</label>
+                <select name="room" class="room" id="sel">
+                    <option value="Business">Business </option>
+                    <option value="Technology">Technology</option>
+                    <option value="Sport">Sports</option>
+                    <option value="news">International News</option>
+                    <option value="cats">Just Cats</option>
+                </select>
+            </div>
+            <div class="form-control" id="createchannel" style="display: none;">
+                <label for="create">Create Channel</label>
+                <input type="text" name="room" class="room" id="cre_ch" placeholder="Enter Channel..." />
+                <input type="password" name="pass-room" class="room" id="pass_cre" placeholder="Enter Password..."
+                    required />
+            </div>
+            <div class="form-control" id="joinchannel" style="display: none;">
+                <label for="join">Join Channel</label>
+                <input type="text" name="room" class="room" id="joi_ch" placeholder="Enter Channel..." required />
+                <input type="password" name="pass-room" class="room" id="pass_joi" placeholder="Enter Password..."
+                    required />
+            </div>
+            <div class="flex">
+                <input type="hidden" id="bienluu" value="0">
+                <input type="button" class="btn" value="JoinChannel" id="choose-ch">
+            </div>
+        </form>
+    </div>
+    <!-- IMPOT + CONFIG -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.5.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCo0CX1RGviRW_4rvq-zct7qfKpn3yhVdg",
+            authDomain: "myfiredata-78f0d.firebaseapp.com",
+            projectId: "myfiredata-78f0d",
+            storageBucket: "myfiredata-78f0d.appspot.com",
+            messagingSenderId: "1000373767861",
+            appId: "1:1000373767861:web:bc1c1013df97129f73b8fc"
+        };
+
+        // Initialize Firebase
+
+        const app = initializeApp(firebaseConfig);
+        import { getDatabase, ref, get, set, child, update, remove }
+            from "https://www.gstatic.com/firebasejs/9.5.0/firebase-database.js"
+        const db = getDatabase();
+
+        //References
+
+        var username = document.getElementById("Username");
+        var password = document.getElementById("Password");
+
+        var choose_ch = document.getElementById("choose-ch");
+
+        var create = document.getElementById("create");
+        var pass_cre = document.getElementById("pass_cre");
+        var join = document.getElementById("join");
+        var pass_joi = document.getElementById("pass_joi");
+
+        //Select datafunction
+
+        function SelectData(room) {
+            const dbref = ref(db);
+            get(child(dbref, "Rooms/" + room)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    if (pass_joi.value == snapshot.val().PassRoom) {
+                        var url = location.href;
+                        var index = url.indexOf("?");
+                        url = url.slice(index + 1, url.length);
+                        location.href = "chat.html?" + url + "&room=" + room;
+                    }
+                    else {
+                        alert("The password for the room is wrong");
+                    }
+                }
+                else {
+                    alert("Room not created yet");
+                }
+            })
+                .catch((error) => {
+                    alert("unsuccessful, error" + error);
+                });
+        }
+
+        //InsertData
+
+        function InsertData(room) {
+            set(ref(db, "Rooms/" + room), {
+                RoomNumber: room,
+                PassRoom: pass_cre.value
+            })
+                .then(() => {
+                    alert("Room created");
+                    var url = location.href;
+                    var index = url.indexOf("?");
+                    url = url.slice(index + 1, url.length);
+                    location.href = "chat.html?" + url + "&room=" + room;
+                })
+                .catch((error) => {
+                    alert("unsuccesful, error" + error);
+                });
+        }
+        //Assign Events to Btns
+
+        create.addEventListener('click', CreatChannel);
+        join.addEventListener('click', JoinChannel);
+        choose_ch.addEventListener('click', ChatFunction);
+        function CreatChannel() {
+            document.getElementById("options").style.display = "none";
+            document.getElementById("createchannel").style.display = "block";
+            document.getElementById("joinchannel").style.display = "none";
+            document.getElementById("bienluu").value = 1;
+        }
+        function JoinChannel() {
+            document.getElementById("options").style.display = "none";
+            document.getElementById("createchannel").style.display = "none";
+            document.getElementById("joinchannel").style.display = "block";
+            document.getElementById("bienluu").value = 2;
+        }
+        function ChatFunction() {
+            var bienluu = document.getElementById("bienluu").value;
+            var room = "";
+            if (bienluu == 0) {
+                room = document.getElementById("sel").value;
+                var url = location.href;
+                var index = url.indexOf("?");
+                url = url.slice(index + 1, url.length);
+                location.href = "chat.html?" + url + "&room=" + room;
+            }
+            else if (bienluu == 1) {
+                room = document.getElementById("cre_ch").value;
+                InsertData(room);
+            }
+            else if (bienluu == 2) {
+                room = document.getElementById("joi_ch").value;
+                SelectData(room);
+            }
+        }
+    </script>
+</body>
+
+</html>
